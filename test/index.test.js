@@ -1,4 +1,5 @@
-import { expect } from 'chai';
+import chai, { expect } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 import path from 'path';
 import assert from 'assert';
 import feathers from 'feathers';
@@ -8,6 +9,8 @@ import errors from 'feathers-errors';
 
 import server from './test-app';
 import service from '../src';
+
+chai.use(chaiAsPromised);
 
 function createService (name, options) {
   // NeDB ids do not seem to be generated sequentially but sorted lexigraphically
@@ -65,6 +68,14 @@ describe('NeDB Service', function () {
 
     base(app, errors, 'people', '_id');
     base(app, errors, 'people-customid', 'customid');
+  });
+
+  describe('Service update', () => {
+    it('should respect NeDB upsert option', () => {
+      const myService = app.service('/people');
+
+      return expect(myService.update('upsertion-test', {}, {nedb: {upsert: true}})).to.be.fulfilled;
+    });
   });
 });
 
